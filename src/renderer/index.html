@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GhostMind</title>
+  <meta name="description" content="Stealth AI Interview Assistant" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Tesseract.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ─── Root App Container ─────────────────────────────────────── -->
+  <div id="app" class="app">
+
+    <!-- ─── Header / Title Bar ──────────────────────────────────────── -->
+    <header class="header" id="drag-region">
+      <div class="header-left">
+        <div class="logo-dot"></div>
+        <span class="logo-text">GhostMind</span>
+        <div class="status-pill" id="status-pill">
+          <div class="status-dot" id="status-dot"></div>
+          <span id="status-text">Initializing…</span>
+        </div>
+      </div>
+      <div class="header-controls">
+        <button class="icon-btn" id="btn-settings" title="Settings">⚙</button>
+        <button class="icon-btn" id="btn-minimize" title="Hide (Ctrl+Shift+Space)">―</button>
+        <button class="icon-btn danger" id="btn-quit" title="Quit">✕</button>
+      </div>
+    </header>
+
+    <!-- ─── Mode Toggles ────────────────────────────────────────────── -->
+    <div class="mode-bar">
+      <button class="mode-btn active" id="btn-mode-manual" data-mode="manual">
+        <span class="mode-icon">✏️</span> Manual
+      </button>
+      <button class="mode-btn" id="btn-mode-audio" data-mode="audio">
+        <span class="mode-icon">🎙</span> Listen
+      </button>
+      <button class="mode-btn" id="btn-mode-ocr" data-mode="ocr">
+        <span class="mode-icon">👁</span> Screen
+      </button>
+      <button class="mode-btn" id="btn-mode-auto" data-mode="auto">
+        <span class="mode-icon">⚡</span> Auto
+      </button>
+    </div>
+
+    <!-- ─── Live Transcript (audio mode) ────────────────────────────── -->
+    <div class="transcript-box" id="transcript-box" style="display:none">
+      <div class="transcript-label">
+        <span class="pulse-dot"></span> Listening…
+      </div>
+      <p class="transcript-text" id="transcript-text">Waiting for speech…</p>
+    </div>
+
+    <!-- ─── Question Input ──────────────────────────────────────────── -->
+    <div class="input-section">
+      <div class="input-wrapper">
+        <textarea
+          id="question-input"
+          class="question-input"
+          placeholder="Paste or type the interview question here…"
+          rows="3"
+        ></textarea>
+        <div class="input-actions">
+          <button class="action-btn secondary" id="btn-ocr" title="Scan Screen (Ctrl+Shift+S)">
+            📸 Scan Screen
+          </button>
+          <button class="action-btn primary" id="btn-answer">
+            ⚡ Answer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Answer Panel ─────────────────────────────────────────────── -->
+    <div class="answer-panel" id="answer-panel">
+      <div class="answer-header">
+        <span class="answer-label">AI Response</span>
+        <div class="answer-actions">
+          <span class="exchange-count" id="exchange-count">0 exchanges</span>
+          <button class="icon-btn-sm" id="btn-copy" title="Copy answer">⎘</button>
+          <button class="icon-btn-sm" id="btn-clear" title="Clear history (Ctrl+Shift+C)">🗑</button>
+        </div>
+      </div>
+      <div class="answer-content" id="answer-content">
+        <div class="empty-state">
+          <div class="empty-icon">🧠</div>
+          <p>Ask a question to get an AI-powered answer</p>
+          <div class="hotkey-grid">
+            <div class="hotkey-item"><kbd>Ctrl+Shift+Space</kbd><span>Show/Hide</span></div>
+            <div class="hotkey-item"><kbd>Ctrl+Shift+A</kbd><span>Auto Answer</span></div>
+            <div class="hotkey-item"><kbd>Ctrl+Shift+L</kbd><span>Toggle Listen</span></div>
+            <div class="hotkey-item"><kbd>Ctrl+Shift+S</kbd><span>Scan Screen</span></div>
+            <div class="hotkey-item"><kbd>Ctrl+Shift+M</kbd><span>Move Window</span></div>
+            <div class="hotkey-item"><kbd>Ctrl+Shift+C</kbd><span>Clear Chat</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Settings Panel (hidden by default) ───────────────────────── -->
+    <div class="settings-panel" id="settings-panel" style="display:none">
+      <div class="settings-title">Settings</div>
+      <div class="settings-group">
+        <label class="settings-label">Groq API Key <span style="color:var(--green);font-size:9px">(Primary — Ultra Fast)</span></label>
+        <input type="password" class="settings-input" id="s-groq-key" placeholder="gsk_…" />
+      </div>
+      <div class="settings-group">
+        <label class="settings-label">Gemini API Key <span style="color:var(--text-muted);font-size:9px">(Fallback)</span></label>
+        <input type="password" class="settings-input" id="s-gemini-key" placeholder="AIzaSy…" />
+      </div>
+      <div class="settings-group">
+        <label class="settings-label">OpenAI Key (Whisper, optional)</label>
+        <input type="password" class="settings-input" id="s-whisper-key" placeholder="sk-…" />
+      </div>
+      <div class="settings-row">
+        <div class="settings-group half">
+          <label class="settings-label">Your Role</label>
+          <input type="text" class="settings-input" id="s-role" placeholder="Software Engineer" />
+        </div>
+        <div class="settings-group half">
+          <label class="settings-label">Company</label>
+          <input type="text" class="settings-input" id="s-company" placeholder="Google" />
+        </div>
+      </div>
+      <div class="settings-group">
+        <label class="settings-label">Window Opacity</label>
+        <input type="range" class="settings-range" id="s-opacity" min="0.3" max="1" step="0.05" value="0.95" />
+      </div>
+      <div class="settings-actions">
+        <button class="action-btn primary full" id="btn-save-settings">Save Settings</button>
+      </div>
+    </div>
+
+    <!-- ─── Toast Notification ──────────────────────────────────────── -->
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <!-- ─── Services ────────────────────────────────────────────────── -->
+  <script src="../services/gemini.js"></script>
+  <script src="../services/audio-capture.js"></script>
+  <script src="../services/ocr-engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
