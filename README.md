@@ -70,3 +70,8 @@ GhostMind is a stealth, always-on-top AI interview assistant built with Electron
 ## 📄 License
 
 MIT
+
+
+---
+Made with ❤️ by [Sonu Verma](https://github.com/SONUVERMA11)
+

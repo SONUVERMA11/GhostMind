@@ -8,8 +8,13 @@
     "dev": "ELECTRON_IS_DEV=1 electron . --no-sandbox",
     "build": "electron-builder"
   },
-  "keywords": ["interview", "ai", "overlay", "stealth"],
-  "author": "GhostMind",
+  "keywords": [
+    "interview",
+    "ai",
+    "overlay",
+    "stealth"
+  ],
+  "author": "SONU VERMA <snverma1020@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
