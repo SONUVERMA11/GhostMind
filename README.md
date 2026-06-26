@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner.png" alt="GhostMind Banner" width="100%">
+</p>
+
 # GhostMind 👻
 
 GhostMind is a stealth, always-on-top AI interview assistant built with Electron. It captures audio and screen questions and uses high-speed AI models (like Groq) to provide real-time answers. It is engineered to be invisible to screen-sharing software (Zoom, Teams, etc.).
